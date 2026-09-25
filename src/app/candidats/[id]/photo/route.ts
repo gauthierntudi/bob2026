@@ -25,6 +25,8 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     });
   }
 
+  if (process.env.VERCEL === "1") return new Response(null, { status: 404 });
+
   const { env } = await getCloudflareContext({ async: true });
   if (env.FILES) {
     for (const extension of extensions) {

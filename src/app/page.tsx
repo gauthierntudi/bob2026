@@ -10,12 +10,22 @@ export default async function PublicVotePage({
   searchParams: Promise<{ error?: string; ok?: string }>;
 }) {
   const params = await searchParams;
-  const [state, people, token] = await Promise.all([
-    getSettings(),
-    listCandidates(),
-    readVoterToken(),
-  ]);
-  const current = await getPublicVote(token);
+  let state = { publicOpen: false, juryOpen: false };
+  let people: Awaited<ReturnType<typeof listCandidates>> = [];
+  let current: number | null = null;
+  let offline = false;
+  try {
+    const [nextState, nextPeople, token] = await Promise.all([
+      getSettings(),
+      listCandidates(),
+      readVoterToken(),
+    ]);
+    state = nextState;
+    people = nextPeople;
+    current = await getPublicVote(token);
+  } catch {
+    offline = true;
+  }
 
   return (
     <>
@@ -41,7 +51,13 @@ export default async function PublicVotePage({
           />
         )}
 
-        {!state.publicOpen ? <p className="note">Le vote du public est fermé.</p> : null}
+        {offline ? (
+          <p className="note">
+            Le service de votes n’est pas joignable. Ajoutez CLOUDFLARE_ACCOUNT_ID et CLOUDFLARE_API_TOKEN
+            dans les variables Vercel.
+          </p>
+        ) : null}
+        {!offline && !state.publicOpen ? <p className="note">Le vote du public est fermé.</p> : null}
         {params.ok ? <p className="note">Vote enregistré.</p> : null}
         {params.error ? <p className="error">{params.error}</p> : null}
       </main>

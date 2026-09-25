@@ -4,7 +4,11 @@ import { LiveBoard } from "@/components/live-board";
 import { getStandings } from "@/lib/data";
 
 export default async function ResultsPage() {
-  const board = await getStandings();
+  const board = await getStandings().catch(() => ({
+    standings: [],
+    totalVotes: 0,
+    jurorCount: 0,
+  }));
 
   return (
     <>

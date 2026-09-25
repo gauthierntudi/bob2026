@@ -18,9 +18,16 @@ export default async function JuryPage({
   const params = await searchParams;
   const { sessionSecret } = await getSecrets();
   const jurorId = await readJurorId(sessionSecret);
-  const [state, people, jurors] = await Promise.all([getSettings(), listCandidates(), listJurors()]);
+  let state = { publicOpen: false, juryOpen: false };
+  let people: Awaited<ReturnType<typeof listCandidates>> = [];
+  let jurors: Awaited<ReturnType<typeof listJurors>> = [];
+  try {
+    [state, people, jurors] = await Promise.all([getSettings(), listCandidates(), listJurors()]);
+  } catch {
+    /* la page reste visible si D1 n’est pas joignable */
+  }
   const juror = jurors.find((item) => item.id === jurorId) ?? null;
-  const sheets = juror ? await getJurorSheets(juror.id) : new Map();
+  const sheets = juror ? await getJurorSheets(juror.id).catch(() => new Map()) : new Map();
 
   return (
     <>

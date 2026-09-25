@@ -18,6 +18,7 @@ function objectKey(candidateId: number, contentType: string) {
 }
 
 async function putWithBinding(key: string, photo: PhotoFile) {
+  if (process.env.VERCEL === "1") return null;
   const { env } = await getCloudflareContext({ async: true });
   if (!env.FILES) return null;
   await env.FILES.put(key, photo.data, {
