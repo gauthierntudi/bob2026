@@ -1,0 +1,39 @@
+{
+  "name": "bob-votes",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/sync-d1-id.mjs && next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "node scripts/sync-d1-id.mjs && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "db:migrate": "node scripts/sync-d1-id.mjs && wrangler d1 migrations apply bob-votes --local",
+    "db:migrate:remote": "node scripts/sync-d1-id.mjs && wrangler d1 migrations apply bob-votes --remote",
+    "db:seed": "node scripts/seed.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1139.0",
+    "@opennextjs/cloudflare": "^1.20.6",
+    "drizzle-orm": "^0.45.3",
+    "next": "16.3.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-easy-crop": "^6.2.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260924.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.6",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "wrangler": "^4.138.0"
+  }
+}

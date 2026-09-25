@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bob-votes",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-03-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "bob-votes"
+    }
+  ],
+  "vars": {
+    "R2_PUBLIC_URL": "https://pub-8f020412baf843bda049609068cdfb87.r2.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bob-votes",
+      "database_id": "ce16e223-ce33-4223-9e21-2d6809b010e1",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "bob-files"
+    }
+  ]
+}

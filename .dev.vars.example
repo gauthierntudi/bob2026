@@ -1,0 +1,3 @@
+NEXTJS_ENV=development
+ADMIN_PASSWORD=bob-admin
+SESSION_SECRET=remplacez-moi-par-une-longue-chaine-aleatoire
