@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { CRITERION_MAX } from "@/lib/scoring";
 
 export function ScoreField({
@@ -33,7 +33,7 @@ export function ScoreField({
         value={value}
         disabled={disabled}
         aria-valuetext={`${value} sur ${CRITERION_MAX}`}
-        style={{ "--fill": `${(value / CRITERION_MAX) * 100}%` }}
+        style={{ "--fill": `${(value / CRITERION_MAX) * 100}%` } as CSSProperties}
         onChange={(event) => setValue(Number(event.target.value))}
       />
     </label>

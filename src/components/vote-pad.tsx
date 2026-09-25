@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { castPublicVote } from "@/app/actions";
 import { CandidatePhoto } from "@/components/candidate-photo";
 import { badgeVars } from "@/lib/badges";
@@ -24,6 +25,9 @@ export function VotePad({
   open: boolean;
 }) {
   const [picked, setPicked] = useState<Person | null>(null);
+  const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const drag = useRef({ y: 0, t: 0, active: false });
 
   useEffect(() => {
     if (!picked) return;
@@ -67,15 +71,55 @@ export function VotePad({
           );
         })}
       </div>
-      {picked ? (
-        <div className="sheet-backdrop" onClick={() => setPicked(null)}>
+      {picked
+        ? createPortal(
+        <div
+          className="sheet-backdrop"
+          style={{ opacity: Math.max(0.2, 1 - dragY / 280) }}
+          onClick={() => setPicked(null)}
+        >
           <form
-            className="sheet"
+            className={dragging ? "sheet is-dragging" : "sheet"}
             action={castPublicVote}
             role="dialog"
             aria-modal="true"
             aria-labelledby="sheet-title"
+            style={dragY ? { transform: `translateY(${dragY}px)` } : undefined}
             onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => {
+              if ((event.target as HTMLElement).closest("button, input, a")) return;
+              drag.current = { y: event.clientY, t: performance.now(), active: true };
+              try {
+                event.currentTarget.setPointerCapture(event.pointerId);
+              } catch {
+                /* le geste reste suivi sans capture */
+              }
+            }}
+            onPointerMove={(event) => {
+              if (!drag.current.active) return;
+              const next = Math.max(0, event.clientY - drag.current.y);
+              if (next > 6) setDragging(true);
+              setDragY(next);
+            }}
+            onPointerUp={(event) => {
+              if (!drag.current.active) return;
+              const next = Math.max(0, event.clientY - drag.current.y);
+              const elapsed = Math.max(1, performance.now() - drag.current.t);
+              drag.current.active = false;
+              if (next > 88 || next / elapsed > 0.65) {
+                setDragging(false);
+                setDragY(0);
+                setPicked(null);
+                return;
+              }
+              setDragging(false);
+              requestAnimationFrame(() => setDragY(0));
+            }}
+            onPointerCancel={() => {
+              drag.current.active = false;
+              setDragging(false);
+              setDragY(0);
+            }}
           >
             <span className="sheet-grip" aria-hidden="true" />
             <input type="hidden" name="number" value={picked.number} />
@@ -99,8 +143,10 @@ export function VotePad({
               Annuler
             </button>
           </form>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+        )
+        : null}
     </>
   );
 }
