@@ -23,6 +23,9 @@ html { background: #f30808; }
 
 body {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   background: transparent;
   color: var(--white);
   font-family: var(--font-vodafone), sans-serif;
@@ -63,7 +66,8 @@ button, input { font: inherit; }
 .site-footer {
   position: relative;
   z-index: 1;
-  margin-top: 1.5rem;
+  width: 100%;
+  margin-top: auto;
 }
 
 .site-footer img {
