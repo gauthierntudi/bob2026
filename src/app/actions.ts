@@ -256,6 +256,15 @@ export async function addJuror(formData: FormData) {
   redirect(`/admin?code=${code}&juror=${encodeURIComponent(name)}`);
 }
 
+export async function renameJuror(formData: FormData) {
+  const db = await requireAdmin();
+  const id = Number(formData.get("id"));
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) redirect("/admin?error=Le%20nom%20du%20jur%C3%A9%20est%20obligatoire.");
+  await db.update(jurors).set({ name }).where(eq(jurors.id, id));
+  refresh();
+}
+
 export async function removeJuror(formData: FormData) {
   const db = await requireAdmin();
   const id = Number(formData.get("id"));

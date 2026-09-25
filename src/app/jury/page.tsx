@@ -1,6 +1,7 @@
 import { loginJuror, saveJurySheet } from "@/app/actions";
 import { CandidatePhoto } from "@/components/candidate-photo";
 import { JuryLogout } from "@/components/jury-logout";
+import { PendingButton } from "@/components/pending-button";
 import { ScoreField } from "@/components/score-field";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -92,9 +93,11 @@ export default async function JuryPage({
                         />
                       ))}
                     </div>
-                    <button className="action" type="submit" disabled={!state.juryOpen}>
-                      {saved ? "Enregistré" : "Enregistrer"}
-                    </button>
+                    <PendingButton
+                      idle={saved ? "Enregistré" : "Enregistrer"}
+                      busy="Enregistrement…"
+                      disabled={!state.juryOpen}
+                    />
                   </form>
                 );
               })}

@@ -38,6 +38,7 @@ export function AdminShell({
   removeCandidate,
   addJuror,
   removeJuror,
+  renameJuror,
   logoutAdmin,
 }: {
   publicOpen: boolean;
@@ -56,6 +57,7 @@ export function AdminShell({
   removeCandidate: (data: FormData) => void;
   addJuror: (data: FormData) => void;
   removeJuror: (data: FormData) => void;
+  renameJuror: (data: FormData) => void;
   logoutAdmin: () => void;
 }) {
   const [section, setSection] = useState<Section>(initialSection);
@@ -241,13 +243,14 @@ export function AdminShell({
             <ul className="jury-list">
               {jurors.map((juror) => (
                 <li key={juror.id}>
-                  <div>
-                    <strong>{juror.name}</strong>
-                    <code>{juror.code}</code>
-                  </div>
-                  <form action={removeJuror}>
+                  <form className="juror-edit" action={renameJuror}>
                     <input type="hidden" name="id" value={juror.id} />
-                    <button className="danger" type="submit">
+                    <input type="text" name="name" defaultValue={juror.name} aria-label={`Nom de ${juror.name}`} required />
+                    <code>{juror.code}</code>
+                    <button className="action" type="submit">
+                      Enregistrer
+                    </button>
+                    <button className="danger" type="submit" formAction={removeJuror}>
                       Retirer
                     </button>
                   </form>

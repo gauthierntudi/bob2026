@@ -6,6 +6,7 @@ import {
   logoutAdmin,
   removeCandidate,
   removeJuror,
+  renameJuror,
   setPolls,
   updateCandidate,
 } from "@/app/actions";
@@ -82,6 +83,7 @@ export default async function AdminPage({
       removeCandidate={removeCandidate}
       addJuror={addJuror}
       removeJuror={removeJuror}
+      renameJuror={renameJuror}
       logoutAdmin={logoutAdmin}
     />
   );

@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { castPublicVote } from "@/app/actions";
 import { CandidatePhoto } from "@/components/candidate-photo";
+import { PendingButton } from "@/components/pending-button";
 import { badgeVars } from "@/lib/badges";
 
 type Person = {
@@ -25,6 +27,7 @@ export function VotePad({
   open: boolean;
 }) {
   const [picked, setPicked] = useState<Person | null>(null);
+  const [sending, setSending] = useState(false);
   const [dragY, setDragY] = useState(0);
   const [dragging, setDragging] = useState(false);
   const drag = useRef({ y: 0, t: 0, active: false });
@@ -76,7 +79,9 @@ export function VotePad({
         <div
           className="sheet-backdrop"
           style={{ opacity: Math.max(0.2, 1 - dragY / 280) }}
-          onClick={() => setPicked(null)}
+          onClick={() => {
+            if (!sending) setPicked(null);
+          }}
         >
           <form
             className={dragging ? "sheet is-dragging" : "sheet"}
@@ -87,6 +92,7 @@ export function VotePad({
             style={dragY ? { transform: `translateY(${dragY}px)` } : undefined}
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => {
+              if (sending) return;
               if ((event.target as HTMLElement).closest("button, input, a")) return;
               drag.current = { y: event.clientY, t: performance.now(), active: true };
               try {
@@ -121,6 +127,7 @@ export function VotePad({
               setDragY(0);
             }}
           >
+            <VoteWait onChange={setSending} />
             <span className="sheet-grip" aria-hidden="true" />
             <input type="hidden" name="number" value={picked.number} />
             <div className="sheet-who">
@@ -136,10 +143,8 @@ export function VotePad({
               {picked.city ? <p className="sub">{picked.city}</p> : null}
             </div>
             <p className="sheet-ask">Confirmer votre vote pour ce candidat ?</p>
-            <button className="action" type="submit">
-              Confirmer
-            </button>
-            <button className="ghost sheet-cancel" type="button" onClick={() => setPicked(null)}>
+            <PendingButton idle="Confirmer" busy="Validation…" />
+            <button className="ghost sheet-cancel" type="button" disabled={sending} onClick={() => setPicked(null)}>
               Annuler
             </button>
           </form>
@@ -149,4 +154,12 @@ export function VotePad({
         : null}
     </>
   );
+}
+
+function VoteWait({ onChange }: { onChange: (pending: boolean) => void }) {
+  const { pending } = useFormStatus();
+  useEffect(() => {
+    onChange(pending);
+  }, [pending, onChange]);
+  return null;
 }

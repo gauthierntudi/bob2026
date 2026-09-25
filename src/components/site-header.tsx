@@ -26,7 +26,7 @@ export function SiteHeader() {
       <Link href="/" className="brand">
         <img src="/img/logo.png" alt="Vodacom Best of the Best 2026" />
       </Link>
-      <img className="revolution" src="/img/revolution.png" alt="Révolution" />
+      <img className="revolution" src="/img/logo-right.png" alt="Vodacom" />
     </header>
   );
 }
