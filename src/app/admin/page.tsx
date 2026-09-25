@@ -7,6 +7,7 @@ import {
   removeCandidate,
   removeJuror,
   renameJuror,
+  resetVotes,
   setPolls,
   updateCandidate,
 } from "@/app/actions";
@@ -78,6 +79,7 @@ export default async function AdminPage({
       freshCode={params.code}
       freshJuror={params.juror}
       setPolls={setPolls}
+      resetVotes={resetVotes}
       addCandidate={addCandidate}
       updateCandidate={updateCandidate}
       removeCandidate={removeCandidate}

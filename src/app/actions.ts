@@ -149,6 +149,13 @@ export async function setPolls(formData: FormData) {
   refresh();
 }
 
+export async function resetVotes() {
+  const db = await requireAdmin();
+  await db.delete(publicVotes);
+  await db.delete(juryScores);
+  refresh();
+}
+
 export async function addCandidate(formData: FormData) {
   const db = await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();

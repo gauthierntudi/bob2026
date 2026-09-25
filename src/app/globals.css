@@ -1106,6 +1106,9 @@ button.ticket * { pointer-events: none; }
 
 .switches { display: grid; gap: 0.35rem; margin-bottom: 0.8rem; }
 
+.reset-votes p { margin: 0 0 0.8rem; color: var(--muted); font-size: 0.9rem; }
+.reset-votes .danger { width: auto; }
+
 .switch {
   display: flex;
   align-items: center;

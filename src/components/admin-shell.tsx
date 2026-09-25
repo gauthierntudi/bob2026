@@ -33,6 +33,7 @@ export function AdminShell({
   freshCode,
   freshJuror,
   setPolls,
+  resetVotes,
   addCandidate,
   updateCandidate,
   removeCandidate,
@@ -52,6 +53,7 @@ export function AdminShell({
   freshCode?: string;
   freshJuror?: string;
   setPolls: (data: FormData) => void;
+  resetVotes: () => void;
   addCandidate: (data: FormData) => void;
   updateCandidate: (data: FormData) => void;
   removeCandidate: (data: FormData) => void;
@@ -145,6 +147,22 @@ export function AdminShell({
               </div>
               <button className="action" type="submit">
                 Enregistrer
+              </button>
+            </form>
+            <form
+              className="card reset-votes"
+              action={resetVotes}
+              onSubmit={(event) => {
+                const ok = window.confirm(
+                  "Effacer tous les votes du public et toutes les notes du jury ? Les candidats et les jurés restent.",
+                );
+                if (!ok) event.preventDefault();
+              }}
+            >
+              <h2>Réinitialiser</h2>
+              <p>Efface les votes du public et les notes du jury. Les candidats et les jurés restent.</p>
+              <button className="danger" type="submit">
+                Réinitialiser les votes
               </button>
             </form>
             <ol className="mini-rank">
