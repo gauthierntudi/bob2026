@@ -137,6 +137,19 @@ export async function getStandings(): Promise<{
   return { standings, totalVotes, jurorCount: jurorRows.length };
 }
 
+export async function getPublicStandings() {
+  const board = await getStandings();
+  const standings = board.standings
+    .map((row) => ({
+      ...row,
+      juryScore: null,
+      juryCount: 0,
+      final: row.publicScore,
+    }))
+    .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name, "fr"));
+  return { standings, totalVotes: board.totalVotes, jurorCount: 0 };
+}
+
 function mean(values: number[]): number | null {
   if (values.length === 0) return null;
   return values.reduce((sum, value) => sum + value, 0) / values.length;

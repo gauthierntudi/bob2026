@@ -18,7 +18,15 @@ function signature(board: Board) {
     .join("|");
 }
 
-export function LiveBoard({ initial }: { initial: Board }) {
+export function LiveBoard({
+  initial,
+  source = "/api/resultats",
+  publicOnly = false,
+}: {
+  initial: Board;
+  source?: string;
+  publicOnly?: boolean;
+}) {
   const [board, setBoard] = useState(initial);
   const [hot, setHot] = useState<Set<number>>(new Set());
   const nodes = useRef(new Map<number, HTMLElement>());
@@ -52,7 +60,7 @@ export function LiveBoard({ initial }: { initial: Board }) {
 
     async function pull() {
       try {
-        const response = await fetch("/api/resultats", { cache: "no-store" });
+        const response = await fetch(source, { cache: "no-store" });
         if (!response.ok || !alive) return;
         const next = (await response.json()) as Board;
         const nextSignature = signature(next);
@@ -89,7 +97,7 @@ export function LiveBoard({ initial }: { initial: Board }) {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [initial]);
+  }, [initial, source]);
 
   useEffect(() => {
     if (hot.size === 0) return;
@@ -105,14 +113,16 @@ export function LiveBoard({ initial }: { initial: Board }) {
       </p>
       <h1 className="cast-title">Classement</h1>
       <div className="board-meta">
-        <span>Public 40 %</span>
-        <span>Jury 60 %</span>
+        {publicOnly ? <span>Vote du public</span> : <span>Public 40 %</span>}
+        {publicOnly ? null : <span>Jury 60 %</span>}
         <span>
           {board.totalVotes} vote{board.totalVotes > 1 ? "s" : ""}
         </span>
-        <span>
-          {board.jurorCount} juré{board.jurorCount > 1 ? "s" : ""}
-        </span>
+        {publicOnly ? null : (
+          <span>
+            {board.jurorCount} juré{board.jurorCount > 1 ? "s" : ""}
+          </span>
+        )}
       </div>
       <p className="sr-only" aria-live="polite">
         {leader ? `En tête : ${leader.name}, ${formatScore(leader.final)}` : "Aucun candidat"}
@@ -128,6 +138,7 @@ export function LiveBoard({ initial }: { initial: Board }) {
               place={index + 1}
               lead={index === 0}
               numbers={numbers}
+              publicOnly={publicOnly}
               hot={hot.has(row.id)}
               bind={(element) => {
                 if (element) nodes.current.set(row.id, element);
@@ -146,6 +157,7 @@ function Card({
   place,
   lead,
   numbers,
+  publicOnly,
   hot,
   bind,
 }: {
@@ -153,6 +165,7 @@ function Card({
   place: number;
   lead: boolean;
   numbers: number[];
+  publicOnly: boolean;
   hot: boolean;
   bind: (element: HTMLLIElement | null) => void;
 }) {
@@ -175,10 +188,11 @@ function Card({
           <strong>{row.name}</strong>
           {row.city ? <em>{row.city}</em> : null}
           <Score value={row.final} />
-          <Mix row={row} />
+          <Mix row={row} publicOnly={publicOnly} />
           <small>
-            Public {formatScore(row.publicScore)} · Jury {formatScore(row.juryScore)} · {row.votes} vote
-            {row.votes > 1 ? "s" : ""}
+            {publicOnly
+              ? `${row.votes} vote${row.votes > 1 ? "s" : ""}`
+              : `Public ${formatScore(row.publicScore)} · Jury ${formatScore(row.juryScore)} · ${row.votes} vote${row.votes > 1 ? "s" : ""}`}
           </small>
         </>
       ) : (
@@ -186,7 +200,7 @@ function Card({
           <div className="board-copy">
             <strong>{row.name}</strong>
             {row.city ? <em>{row.city}</em> : null}
-            <Mix row={row} />
+            <Mix row={row} publicOnly={publicOnly} />
           </div>
           <Score value={row.final} />
         </>
@@ -224,13 +238,13 @@ function Score({ value }: { value: number | null }) {
   return <b className="board-score">{formatScore(shown)}</b>;
 }
 
-function Mix({ row }: { row: Standing }) {
-  const publicPart = (row.publicScore ?? 0) * PUBLIC_WEIGHT;
-  const juryPart = (row.juryScore ?? 0) * JURY_WEIGHT;
+function Mix({ row, publicOnly }: { row: Standing; publicOnly: boolean }) {
+  const publicPart = publicOnly ? (row.publicScore ?? 0) : (row.publicScore ?? 0) * PUBLIC_WEIGHT;
+  const juryPart = publicOnly ? 0 : (row.juryScore ?? 0) * JURY_WEIGHT;
   return (
     <span className="board-mix" aria-hidden="true">
       <i style={{ width: `${publicPart}%` }} />
-      <i className="jury" style={{ width: `${juryPart}%` }} />
+      {publicOnly ? null : <i className="jury" style={{ width: `${juryPart}%` }} />}
     </span>
   );
 }
